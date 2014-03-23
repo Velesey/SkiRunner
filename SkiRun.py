@@ -75,8 +75,13 @@ def main():
     entities.add(lastHero)
     currentTime = time.time()
 
+    dm = DataManager()
+    raceId = dm.newRace(dm.getCurrentProfileId(),dm.getCurrentDistanceId())
 
     timer = pygame.time.Clock()
+    total_level_width =dm.getRaceDistance(raceId) * 10 + 64
+    print(total_level_width)
+
     camera = Camera(camera_configure, total_level_width, total_level_height)
 
     finish = FinishLine(total_level_width-64,0)
@@ -85,18 +90,19 @@ def main():
         snowflake = Snowflake(randint(1,total_level_width),randint(1,total_level_height))
         entities.add(snowflake)
 
-    dm = DataManager()
-    #while not dm.isRaceStart:
-      #  speed = dm.getImpulse(valueFromSimulator)
+
+
     isSetCurrentTime  = False
     while not hero.winner: # Основной цикл программы
         timer.tick_busy_loop(60)
 
 
         speed = dm.getImpulse(valueFromSimulator)
-
-
-        speedLastRace = dm.getLastRaceSpeed(1)
+        dm.logSpeed(hero.rect.x,dm.getCurrentRaceId())
+        try:
+            distanceLastRace = dm.getLastRaceSpeed(dm.getLastRaceId())
+        except:
+            distanceLastRace = 0
         if not isSetCurrentTime and dm.isRaceStart:
             currentTime = time.time()
             isSetCurrentTime = True
@@ -116,7 +122,7 @@ def main():
 
         #center_offset = camera.reverse(CENTER_OF_SCREEN) # получаем координаты внутри длинного уровня
         hero.update(speed, finish) # передвижение
-        lastHero.update(speedLastRace, finish) # передвижение
+        lastHero.update(distanceLastRace, finish) # передвижение
 
         font=pygame.font.Font(None,38)
         textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s || %s m/s (round)"  % ((speed * 1000 / 3600), speed,round(speed))), 1,(0,0,0))
@@ -132,7 +138,7 @@ def main():
 
 def getDataFromSimulator():
     global valueFromSimulator
-    ser = serial.Serial('/dev/ttyACM1', 9600)
+    ser = serial.Serial('/dev/ttyACM0', 9600)
     while True:
        value =  ser.readline()
        try:

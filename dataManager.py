@@ -27,6 +27,9 @@ class DataManager:
         self.lastValue = 0
         self.impulse = 0
         self.isRaceStart = False
+        self.lastRaceDistance = 0
+        self.currentRaceId = -1
+        self.currentDistanceId = -1
 
     def getImpulse(self, value):
         self.impulse = 0
@@ -54,28 +57,73 @@ class DataManager:
 
 
     def getLastRaceSpeed(self, raceId):
+        print(raceId)
         dateFormat = "%Y-%m-%d %H:%M:%S.%f"
         if  not self.isGetLastRaceSpeeds:
-            self.isGetLastRaceSpeeds = True
+
             sql = """SELECT min(date) FROM skirunner.runLog WHERE race_id = %s""" % raceId
             self.cursor.execute(sql)
             data = self.cursor.fetchall()
             for rec in data:
                 self.lastRaceMinDate = datetime.strptime(rec[0],dateFormat)
-            sql = """SELECT speed,date FROM skirunner.runLog WHERE race_id = %s ORDER BY date DESC""" % raceId
+            sql = """SELECT distance,date FROM skirunner.runLog WHERE race_id = %s ORDER BY date DESC""" % raceId
             self.cursor.execute(sql)
             self.dataLastRace = self.cursor.fetchall()
             self.currentTimeForLastRace = datetime.now()
+            self.isGetLastRaceSpeeds = True
+
+
 
         if self.isRaceStart:
             time = datetime.now() - self.currentTimeForLastRace
-            result = 0
             for rec in self.dataLastRace:
-                speed, date = rec
+                distance, date = rec
                 if time <= (datetime.strptime(date,dateFormat) - self.lastRaceMinDate):
-                    result = speed
-            return  result
-        return 0
+                    self.lastRaceDistance = distance
+        return  self.lastRaceDistance
+
+    def getRaceDistance(self, raceId):
+         sql = """SELECT distance FROM skirunner.distance  WHERE id =
+                    (SELECT   id_distance FROM skirunner.race WHERE id = %s)""" % raceId
+         self.cursor.execute(sql)
+         result = self.cursor.fetchone()[0]
+         return  result
+
+    def getCurrentProfileId(self):
+        return 1
+
+    def getCurrentDistanceId(self):
+        if self.currentDistanceId != -1:
+            return self.currentDistanceId
+        return 2
+
+    def getLastRaceId(self):
+        if self.currentRaceId != -1:
+            return  self.currentRaceId - 1
+        sql = "SELECT max(id) FROM skirunner.race"
+        self.currentRaceId = self.cursor.execute(sql)[0]
+        return self.currentRaceId - 1
+
+    def getCurrentRaceId(self):
+        if self.currentRaceId != -1:
+            return  self.currentRaceId
+        sql = "SELECT max(id) FROM skirunner.race"
+        self.currentRaceId = self.cursor.execute(sql)[0]
+        return self.currentRaceId
+
+
+    def newRace(self,profileId,distanceId):
+        sql = """INSERT INTO race(id_user,id_distance)
+        VALUES ('%s', '%s')
+        """%(profileId,distanceId)
+        self.cursor.execute(sql)
+        self.db.commit()
+        sql = "SELECT max(id) FROM skirunner.race"
+        self.cursor.execute(sql)
+        self.currentRaceId = self.cursor.fetchone()[0]
+        return self.currentRaceId
+
+
 
 
     def closeDB(self):
@@ -84,10 +132,10 @@ class DataManager:
     def commitDB(self):
         self.db.commit()
 
-    def logSpeed(self,speed):
-        sql = """INSERT INTO runLog(race_id,speed,date)
-        VALUES ('1', '%s', '%s')
-        """%(speed,datetime.now())
+    def logSpeed(self,distance, raceId):
+        sql = """INSERT INTO runLog(race_id,distance,date)
+        VALUES ('%s', '%s', '%s')
+        """%(raceId,distance,datetime.now())
         #print(sql)
         self.cursor.execute(sql)
         #self.db.commit()
