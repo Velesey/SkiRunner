@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from numpy.ma.core import _minimum_operation
 
-import serial
 import time
 import MySQLdb
 from datetime import datetime
-from random import randint
 
 
 STEP = 4.5 #метров
-POWER_IMPULSE = 4
+POWER_IMPULSE = STEP
 RESET_SPEED_TIME = 5
 
 class DataManager:
@@ -30,7 +27,6 @@ class DataManager:
         self.isRaceStart = False
         self.currentRaceId = -1
         self.currentDistanceId = -1
-        self.impulseMeter = 0
 
     def getImpulse(self, value):
         self.impulse = 0
@@ -46,10 +42,6 @@ class DataManager:
             self.speed = STEP / time # метры в секунду
             self.currentTime = self.time.time()
             self.lastValue = self.value
-            self.impulseMeter+=1
-            if self.impulseMeter >=2:
-                self.impulse+=1# по аналогии високосного года
-                self.impulseMeter = 0
 
         return  self.impulse * 10
 
@@ -129,6 +121,7 @@ class DataManager:
     def commitDB(self):
         self.db.commit()
 
+    #TODO Если будет тормозить, комитить после окончания бега
     def logSpeed(self,distance, raceId):
         sql = """INSERT INTO runLog(race_id,distance,date)
         VALUES ('%s', '%s', '%s')
@@ -136,6 +129,14 @@ class DataManager:
         self.cursor.execute(sql)
         self.db.commit()
 
+    def getAverageSpeedByRace(self, raceId):
+        sql = """SELECT (SELECT distance FROM skirunner.distance
+                WHERE id = (SELECT id_distance FROM skirunner.race WHERE id = %s))
+                 / TIME_TO_SEC(TIMEDIFF(max(date), min(date))) AS race_time FROM runLog
+                where race_id = %s""" % (raceId,raceId)
+        self.cursor.execute(sql)
+        averageSpeedByRace = self.cursor.fetchone()[0]
+        return averageSpeedByRace
 
 
 

@@ -68,7 +68,7 @@ def main():
 
     dm = DataManager()
     raceId = dm.newRace(dm.getCurrentProfileId(),dm.getCurrentDistanceId())
-    total_level_width =dm.getRaceDistance(raceId) * 10 + 64
+    total_level_width =dm.getRaceDistance(raceId) * 10 + 64 # на 10, чтобы было более заметна ходьба +64 - финишная черта
 
 
     timer = pygame.time.Clock()
@@ -85,7 +85,7 @@ def main():
     lastHero = LastPlayer(1, 350)
     heroes.add(lastHero)
     currentTime = time.time()
-
+    raceTime = time.time()
 
 
     timer = pygame.time.Clock()
@@ -111,7 +111,7 @@ def main():
         try:
             distanceLastRace = dm.getLastRaceDistanceAtCurrentTime(dm.getLastRaceId(),currentTime)
         except:
-            distanceLastRace = 0
+            distanceLastRace = -1
             print("dm.getLastRaceDistanceAtCurrentTime error")
 
 
@@ -119,11 +119,7 @@ def main():
             if e.type == QUIT:
                 dm.closeDB()
                 isRunnig = False
-
-
                 raise SystemExit, "QUIT"
-
-
 
         for e in entities:
             screen.blit(e.image, camera.apply(e))
@@ -140,19 +136,49 @@ def main():
 
         camera.update(hero) # центризируем камеру относительно персонаж
 
+        raceTime = time.time() - currentTime
         heroSpeed = dm.speed
         font=pygame.font.Font(None,70)
         textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s "  % ((heroSpeed * 1000 / 3600), heroSpeed)), 1,(0,0,0))
         textDistance=font.render(("Distance: %s  m" % (hero.rect.x / 10)), 1,(0,0,0))
-        textTime=font.render(("Time: %.2f " % (time.time() - currentTime)), 1,(0,0,0))
+        textTime=font.render(("Time: %.2f " % (raceTime)), 1,(0,0,0))
 
         screen.blit(textSpeed, (10,10))
         screen.blit(textDistance, (10,50))
         screen.blit(textTime, (10,90))
         pygame.display.update()     # обновление и вывод всех изменений на экран
         screen.blit(bg, (0, 0))      # Каждую итерацию необходимо всё перерисовывать
-    dm.closeDB()
-    isRunnig = False
+
+    dm.logSpeed(hero.rect.x,dm.getCurrentRaceId())
+    while isRunnig:
+        if lastHero.rect.x == 0:
+            finalText = u"Второй...:("
+        else:
+            finalText = u"Поздравляем победителя! :)"
+
+        font=pygame.font.Font(None,70)
+        averageSpeed = dm.getAverageSpeedByRace(dm.getCurrentRaceId())
+        textSpeed=font.render(("Average speed: %.2f  km\h || %.2f m\s "  % ((averageSpeed * 1000 / 3600), averageSpeed)), 1,(0,0,0))
+        textDistance=font.render(("Distance: %s  m" % (hero.rect.x / 10)), 1,(0,0,0))
+        textTime=font.render(("Time: %.2f " % (raceTime)), 1,(0,0,0))
+        text=font.render(finalText, 1,(0,0,200))
+
+
+        screen.blit(textSpeed, (10,10))
+        screen.blit(textDistance, (10,50))
+        screen.blit(textTime, (10,90))
+        pygame.display.update()     # обновление и вывод всех изменений на экран
+        screen.blit(bg, (0, 0))      # Каждую итерацию необходимо всё перерисовывать
+        screen.blit(text, (10,150))
+
+        for e in pygame.event.get(): # Обрабатываем события
+            if e.type == QUIT or e.type == KEYDOWN :
+                isRunnig = False
+                dm.closeDB()
+
+
+
+
 
 
 def getDataFromSimulator():
