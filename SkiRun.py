@@ -26,6 +26,7 @@ total_level_height = WIN_HEIGHT
 FILE_DIR = os.path.dirname(__file__)
 
 valueFromSimulator = 0
+isRunnig = True
 
 class Camera(object):
     def __init__(self, camera_func, width, height):
@@ -56,39 +57,43 @@ def camera_configure(camera, target_rect):
 
 
 def main():
-    global valueFromSimulator
+    global valueFromSimulator, isRunnig
     lastValueFromSimulator = 0
     pygame.init() # Инициация PyGame, обязательная строчка
     screen = pygame.display.set_mode(DISPLAY) # Создаем окошко
     pygame.display.set_caption("SKiRun") # Пишем в шапку
     bg = Surface((WIN_WIDTH, WIN_HEIGHT)) # Создание видимой поверхности
     entities = pygame.sprite.Group() # Все объекты
+    heroes = pygame.sprite.Group() # Все объекты
+
+    dm = DataManager()
+    raceId = dm.newRace(dm.getCurrentProfileId(),dm.getCurrentDistanceId())
+    total_level_width =dm.getRaceDistance(raceId) * 10 + 64
+
 
     timer = pygame.time.Clock()
 
     bg.fill(Color(BACKGROUND_COLOR))     # Заливаем поверхность сплошным цветом
 
+    for i in range(1,100):
+        snowflake = Snowflake(randint(1,total_level_width),randint(1,total_level_height))
+        entities.add(snowflake)
+
     speed = 0
-    hero = Player(10, 200)
-    entities.add(hero)
-    lastHero = Player(10, 250)
-    entities.add(lastHero)
+    hero = Player(0, 300)
+    heroes.add(hero)
+    lastHero = LastPlayer(1, 350)
+    heroes.add(lastHero)
     currentTime = time.time()
 
-    dm = DataManager()
-    raceId = dm.newRace(dm.getCurrentProfileId(),dm.getCurrentDistanceId())
+
 
     timer = pygame.time.Clock()
-    total_level_width =dm.getRaceDistance(raceId) * 10 + 64
-    print(total_level_width)
 
     camera = Camera(camera_configure, total_level_width, total_level_height)
 
     finish = FinishLine(total_level_width-64,0)
-    entities.add(finish)
-    for i in range(1,100):
-        snowflake = Snowflake(randint(1,total_level_width),randint(1,total_level_height))
-        entities.add(snowflake)
+    heroes.add(finish)
 
 
 
@@ -98,48 +103,62 @@ def main():
 
 
         speed = dm.getImpulse(valueFromSimulator)
-        dm.logSpeed(hero.rect.x,dm.getCurrentRaceId())
-        try:
-            distanceLastRace = dm.getLastRaceSpeed(dm.getLastRaceId())
-        except:
-            distanceLastRace = 0
+        if speed > 0:
+            dm.logSpeed(hero.rect.x,dm.getCurrentRaceId())
         if not isSetCurrentTime and dm.isRaceStart:
             currentTime = time.time()
             isSetCurrentTime = True
+        try:
+            distanceLastRace = dm.getLastRaceDistanceAtCurrentTime(dm.getLastRaceId(),currentTime)
+        except:
+            distanceLastRace = 0
+            print("dm.getLastRaceDistanceAtCurrentTime error")
+
 
         for e in pygame.event.get(): # Обрабатываем события
             if e.type == QUIT:
                 dm.closeDB()
+                isRunnig = False
 
 
                 raise SystemExit, "QUIT"
 
 
-        camera.update(hero) # центризируем камеру относительно персонаж
 
         for e in entities:
+            screen.blit(e.image, camera.apply(e))
+            e.rect.y+=1
+            if e.rect.y >= WIN_HEIGHT:
+                e.rect.y = 0
+
+        for e in heroes:
             screen.blit(e.image, camera.apply(e))
 
         #center_offset = camera.reverse(CENTER_OF_SCREEN) # получаем координаты внутри длинного уровня
         hero.update(speed, finish) # передвижение
-        lastHero.update(distanceLastRace, finish) # передвижение
+        lastHero.update(distanceLastRace)
 
-        font=pygame.font.Font(None,38)
-        textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s || %s m/s (round)"  % ((speed * 1000 / 3600), speed,round(speed))), 1,(0,0,0))
+        camera.update(hero) # центризируем камеру относительно персонаж
+
+        heroSpeed = dm.speed
+        font=pygame.font.Font(None,70)
+        textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s "  % ((heroSpeed * 1000 / 3600), heroSpeed)), 1,(0,0,0))
         textDistance=font.render(("Distance: %s  m" % (hero.rect.x / 10)), 1,(0,0,0))
         textTime=font.render(("Time: %.2f " % (time.time() - currentTime)), 1,(0,0,0))
 
         screen.blit(textSpeed, (10,10))
-        screen.blit(textDistance, (10,30))
-        screen.blit(textTime, (10,50))
+        screen.blit(textDistance, (10,50))
+        screen.blit(textTime, (10,90))
         pygame.display.update()     # обновление и вывод всех изменений на экран
         screen.blit(bg, (0, 0))      # Каждую итерацию необходимо всё перерисовывать
     dm.closeDB()
+    isRunnig = False
+
 
 def getDataFromSimulator():
-    global valueFromSimulator
+    global valueFromSimulator, isRunnig
     ser = serial.Serial('/dev/ttyACM0', 9600)
-    while True:
+    while isRunnig:
        value =  ser.readline()
        try:
            valueFromSimulator = int(value)

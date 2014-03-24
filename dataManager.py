@@ -9,8 +9,9 @@ from datetime import datetime
 from random import randint
 
 
-STEP = 2.25 #метров
-
+STEP = 4.5 #метров
+POWER_IMPULSE = 4
+RESET_SPEED_TIME = 5
 
 class DataManager:
     def __init__(self):
@@ -27,37 +28,34 @@ class DataManager:
         self.lastValue = 0
         self.impulse = 0
         self.isRaceStart = False
-        self.lastRaceDistance = 0
         self.currentRaceId = -1
         self.currentDistanceId = -1
+        self.impulseMeter = 0
 
     def getImpulse(self, value):
         self.impulse = 0
-        #if self.isFirstRound:
-        #    self.value = value
-        #    self.lastValue = self.value
-        #    self.isFirstRound = False
 
-        if self.time.time() - self.currentTime > 5:
+        if self.time.time() - self.currentTime > RESET_SPEED_TIME:
             self.speed = 0
         self.value = value
         if self.value != self.lastValue:
             time = self.time.time() - self.currentTime
-            self.impulse = 2
+            self.impulse = POWER_IMPULSE
             self.isRaceStart = True
 
             self.speed = STEP / time # метры в секунду
             self.currentTime = self.time.time()
             self.lastValue = self.value
-        #self.speed = speed / 1000 * 3600 #км в час
-        #print ("m/s " + str(speed))
-        #self.dm.logSpeed(self.speed)
-        #print self.speed
+            self.impulseMeter+=1
+            if self.impulseMeter >=2:
+                self.impulse+=1# по аналогии високосного года
+                self.impulseMeter = 0
+
         return  self.impulse * 10
 
 
-    def getLastRaceSpeed(self, raceId):
-        print(raceId)
+    def getLastRaceDistanceAtCurrentTime(self, raceId,currentTime):
+        lastRaceDistance = 0
         dateFormat = "%Y-%m-%d %H:%M:%S.%f"
         if  not self.isGetLastRaceSpeeds:
 
@@ -69,18 +67,16 @@ class DataManager:
             sql = """SELECT distance,date FROM skirunner.runLog WHERE race_id = %s ORDER BY date DESC""" % raceId
             self.cursor.execute(sql)
             self.dataLastRace = self.cursor.fetchall()
-            self.currentTimeForLastRace = datetime.now()
             self.isGetLastRaceSpeeds = True
 
 
-
         if self.isRaceStart:
-            time = datetime.now() - self.currentTimeForLastRace
+            time = datetime.now() - datetime.fromtimestamp(currentTime)
             for rec in self.dataLastRace:
                 distance, date = rec
                 if time <= (datetime.strptime(date,dateFormat) - self.lastRaceMinDate):
-                    self.lastRaceDistance = distance
-        return  self.lastRaceDistance
+                    lastRaceDistance = distance
+        return  lastRaceDistance
 
     def getRaceDistance(self, raceId):
          sql = """SELECT distance FROM skirunner.distance  WHERE id =
@@ -89,14 +85,17 @@ class DataManager:
          result = self.cursor.fetchone()[0]
          return  result
 
+    #TODO сделать выбор профиля
     def getCurrentProfileId(self):
         return 1
 
+    #TODO сделать выбор дистанции забега
     def getCurrentDistanceId(self):
         if self.currentDistanceId != -1:
             return self.currentDistanceId
         return 2
 
+    #TODO переделать. Если запускать разные профили, то ID меняется
     def getLastRaceId(self):
         if self.currentRaceId != -1:
             return  self.currentRaceId - 1
@@ -124,8 +123,6 @@ class DataManager:
         return self.currentRaceId
 
 
-
-
     def closeDB(self):
         self.db.close()
 
@@ -136,47 +133,9 @@ class DataManager:
         sql = """INSERT INTO runLog(race_id,distance,date)
         VALUES ('%s', '%s', '%s')
         """%(raceId,distance,datetime.now())
-        #print(sql)
         self.cursor.execute(sql)
-        #self.db.commit()
+        self.db.commit()
 
 
-# класс заглушка
-class DummyDataManager:
-    def __init__(self):
-        self.time = time
-        self.currentTime = self.time.time()
-        self.speed = 0
-        pass
-        self.timeDummy = 0
-        self.dm = DataManager()
-        self.tt = 0
-
-    def getSpeed(self):
-        self.timeDummy+=1
-        if self.tt == 0:  self.tt = randint(25,100)
-        if self.timeDummy > self.tt:
-            self.timeDummy = 0
-            self.tt = 0
-            time = self.time.time() - self.currentTime
-            self.currentTime =  self.time.time()
-            self.speed = STEP / time # метры в секунду
-            #self.speed = speed / 1000 * 3600 #км в час
-            #print ("m/s " + str(speed))
-            #self.dm.logSpeed(self.speed)
-        return  self.speed # скрость оставим такой, а расстояние надо умножать на 60
-
-    def closeDB(self):
-        self.dm.commitDB()
-        self.dm.closeDB()
-
-    def getLastRaceSpeed(self, raceId):
-        return  self.dm.getLastRaceSpeed(raceId)
-
-
-
-#dm = DataManager()
-#dm.getLastRaceSpeed(1)cute(sql)
-        #self.db.commit()
 
 
