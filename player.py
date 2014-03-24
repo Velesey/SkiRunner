@@ -21,38 +21,31 @@ ANIMATION_RIGHT = [('%s/mario/r1.png' % ICON_DIR),
 class Player(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
-        self.xvel = 0   #скорость перемещения. 0 - стоять на месте
-        self.startX = x # Начальная позиция Х, пригодится когда будем переигрывать уровень
-        self.startY = y
         self.image = Surface((WIDTH,HEIGHT))
-        self.image.fill(Color(COLOR))
-        self.rect = Rect(x, y, WIDTH, HEIGHT) # прямоугольный объект
-        self.image.set_colorkey(Color(COLOR)) # делаем фон прозрачным
-#        Анимация движения вправо
+        self.rect = Rect(x, y, WIDTH, HEIGHT)
+        self.image.set_colorkey(Color(COLOR))
         boltAnim = []
         for anim in ANIMATION_RIGHT:
             boltAnim.append((anim, ANIMATION_DELAY))
         self.boltAnimRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimRight.play()
-
         self.winner = False
         
 
     def update(self, speed, finish):
-
-        self.xvel = round(speed)
-
         self.image.fill(Color(COLOR))
-
         self.boltAnimRight.blit(self.image, (0, 0))
-        #if speed == 0:
-         #   self.boltAnimRight.pause()
-        #else:
-        self.boltAnimRight.play()
-
-        self.rect.x += self.xvel # переносим свои положение на xvel
+        self.rect.x += speed
         if sprite.collide_rect(self, finish):
             self.winner = True
 
 
+class LastPlayer(Player):
+    def __init__(self,x,y):
+        Player.__init__(self,x,y)
+
+    def update(self, distance):
+        self.image.fill(Color(COLOR))
+        self.boltAnimRight.blit(self.image, (0, 0))
+        self.rect.x = distance
 
