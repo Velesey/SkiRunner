@@ -114,6 +114,19 @@ class DataManager:
         self.currentRaceId = self.cursor.fetchone()[0]
         return self.currentRaceId
 
+    def getProfilesAndIds(self):
+        sql = "SELECT * FROM skirunner.user"
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        return data
+
+    def newProfile(self,name):
+        sql = """INSERT INTO user(name)
+        VALUES ('%s')
+        """%(name)
+        self.cursor.execute(sql)
+        self.db.commit()
+
 
     def closeDB(self):
         self.db.close()
