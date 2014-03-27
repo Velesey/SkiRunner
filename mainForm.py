@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from PyQt4 import QtCore, QtGui, uic
+from PyQt4.Qt import *
+from PyQt4 import uic
 import  os
 import  sys
 from dataManager import *
@@ -7,10 +8,10 @@ from dataManager import *
 DIR = os.path.dirname(__file__) #  Полный путь к каталогу с файлами
 
 
-class FormProfile(QtGui.QMainWindow):
+class FormProfile(QMainWindow):
 
     def __init__(self):
-        super(QtGui.QMainWindow, self).__init__()
+        super(QMainWindow, self).__init__()
         uic.loadUi('%s/ui/frm_profile.ui' % DIR, self)
         self.cb_profile_load()
         self.te_newProfile.hide()
@@ -18,15 +19,20 @@ class FormProfile(QtGui.QMainWindow):
         self.bt_cancel.hide()
         self.lb_add.hide()
 
-        self.connect(self.bt_ok, QtCore.SIGNAL("clicked()"), self.bt_ok_clicked)
-        self.connect(self.bt_new, QtCore.SIGNAL("clicked()"), self.bt_new_clicked)
-        self.connect(self.bt_addProfile, QtCore.SIGNAL("clicked()"), self.bt_addProfile_clicked)
-        self.connect(self.bt_cancel, QtCore.SIGNAL("clicked()"), self.bt_cancel_clicked)
+        self.connect(self.bt_ok, SIGNAL("clicked()"), self.bt_ok_clicked)
+        self.connect(self.bt_new, SIGNAL("clicked()"), self.bt_new_clicked)
+        self.connect(self.bt_addProfile,SIGNAL("clicked()"), self.bt_addProfile_clicked)
+        self.connect(self.bt_cancel, SIGNAL("clicked()"), self.bt_cancel_clicked)
 
-        self.show()
+        self.profileId = -1
+
 
     def bt_ok_clicked(self):
-        print("clickef")
+        self.profileId = self.cb_profile.itemData(self.cb_profile.currentIndex()).toString()
+        self.formSpeed = FormSpeed(self.profileId)
+        self.formSpeed.show()
+
+        self.hide()
 
     def bt_new_clicked(self):
         self.te_newProfile.show()
@@ -48,7 +54,6 @@ class FormProfile(QtGui.QMainWindow):
         self.bt_new.show()
         self.bt_cancel.hide()
 
-
         name = u"%s" % self.te_newProfile.text()
         if name != "":
             dm = DataManager()
@@ -67,7 +72,6 @@ class FormProfile(QtGui.QMainWindow):
         self.bt_cancel.hide()
 
 
-
     def cb_profile_load(self):
         self.cb_profile.clear()
         dm = DataManager()
@@ -77,7 +81,22 @@ class FormProfile(QtGui.QMainWindow):
             self.cb_profile.addItem(name,id)
 
 
-if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
-    window = FormProfile()
-    sys.exit(app.exec_())
+class FormSpeed(QMainWindow):
+    def __init__(self,profileId):
+        super(QMainWindow, self).__init__()
+        uic.loadUi('%s/ui/frm_speed.ui' % DIR, self)
+        self.profileId = profileId
+
+class App(QApplication):
+    def __init__(self, *args):
+        QApplication.__init__(self, *args)
+        self.formProfile = FormProfile()
+        self.formProfile.show()
+
+def main(args):
+    global app
+    app = App(args)
+    app.exec_()
+
+if __name__ == "__main__":
+    main(sys.argv)
