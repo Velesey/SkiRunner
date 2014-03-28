@@ -140,7 +140,7 @@ class FormDistance(QMainWindow):
         self.distanceId = self.cb_distance.itemData(self.cb_distance.currentIndex()).toString()
 
         from SkiRun import *
-        t1 = threading.Thread(target=main)
+        t1 = threading.Thread(target=main,args = (self.profileId,self.distanceId))
         t2 = threading.Thread(target=getDataFromSimulator)
 
         t2.start()

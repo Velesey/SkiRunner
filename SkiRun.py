@@ -56,7 +56,7 @@ def camera_configure(camera, target_rect):
     return Rect(l, t, w, h)
 
 
-def main():
+def main(profileId, distanceId):
     global valueFromSimulator, isRunnig
     lastValueFromSimulator = 0
     pygame.init() # Инициация PyGame, обязательная строчка
@@ -67,7 +67,10 @@ def main():
     heroes = pygame.sprite.Group() # Все объекты
 
     dm = DataManager()
-    raceId = dm.newRace(dm.getCurrentProfileId(),dm.getCurrentDistanceId())
+    dm.currentDistanceId = distanceId
+    dm.currentProfileId = profileId
+
+    raceId = dm.newRace(dm.currentProfileId,dm.currentDistanceId)
     total_level_width =dm.getRaceDistance(raceId) * 10 + 64 # на 10, чтобы было более заметна ходьба +64 - финишная черта
 
 
@@ -109,16 +112,17 @@ def main():
             currentTime = time.time()
             isSetCurrentTime = True
         try:
-            distanceLastRace = dm.getLastRaceDistanceAtCurrentTime(dm.getLastRaceId(),currentTime)
-        except:
+            distanceLastRace = dm.getLastRaceDistanceAtCurrentTime(dm.getLastRaceId(dm.currentProfileId),currentTime)
+        except Exception as e:
             distanceLastRace = -1
-            print("dm.getLastRaceDistanceAtCurrentTime error")
+            print(e)
 
 
         for e in pygame.event.get(): # Обрабатываем события
             if e.type == QUIT:
                 dm.closeDB()
                 isRunnig = False
+                exit(0)
                 raise SystemExit, "QUIT"
 
         for e in entities:
@@ -140,12 +144,14 @@ def main():
         heroSpeed = dm.speed
         font=pygame.font.Font(None,70)
         textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s "  % ((heroSpeed * 1000 / 3600), heroSpeed)), 1,(0,0,0))
-        textDistance=font.render(("Distance: %s  m" % (hero.rect.x / 10)), 1,(0,0,0))
+        textDistance=font.render(("Distance: %s m from %s m" % ((hero.rect.x / 10),dm.getDistanceNameById(dm.currentDistanceId))), 1,(0,0,0))
         textTime=font.render(("Time: %.2f " % (raceTime)), 1,(0,0,0))
+        textProfile=font.render(("Profile: %s" % (dm.getProfileNameById(dm.currentProfileId))), 1,(0,0,0))
 
         screen.blit(textSpeed, (10,10))
         screen.blit(textDistance, (10,50))
         screen.blit(textTime, (10,90))
+        screen.blit(textProfile, (10,130))
         pygame.display.update()     # обновление и вывод всех изменений на экран
         screen.blit(bg, (0, 0))      # Каждую итерацию необходимо всё перерисовывать
 

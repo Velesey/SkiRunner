@@ -27,7 +27,7 @@ class DataManager:
         self.isRaceStart = False
         self.currentRaceId = -1
         self.currentDistanceId = -1
-
+        self.currentProfileId = -1
     def getImpulse(self, value):
         self.impulse = 0
 
@@ -77,23 +77,15 @@ class DataManager:
          result = self.cursor.fetchone()[0]
          return  result
 
-    #TODO сделать выбор профиля
-    def getCurrentProfileId(self):
-        return 1
+    def getLastRaceId(self, profileId):
+        sql = """SELECT max(id) FROM skirunner.race
+            WHERE id_user = %s
+            AND id != (SELECT max(id) FROM skirunner.race
+            WHERE id_user = %s)""" % (profileId, profileId)
+        self.cursor.execute(sql)
+        result = self.cursor.fetchone()[0]
+        return result
 
-    #TODO сделать выбор дистанции забега
-    def getCurrentDistanceId(self):
-        if self.currentDistanceId != -1:
-            return self.currentDistanceId
-        return 2
-
-    #TODO переделать. Если запускать разные профили, то ID меняется
-    def getLastRaceId(self):
-        if self.currentRaceId != -1:
-            return  self.currentRaceId - 1
-        sql = "SELECT max(id) FROM skirunner.race"
-        self.currentRaceId = self.cursor.execute(sql)[0]
-        return self.currentRaceId - 1
 
     def getCurrentRaceId(self):
         if self.currentRaceId != -1:
@@ -141,7 +133,6 @@ class DataManager:
         self.cursor.execute(sql)
         self.db.commit()
 
-
     def closeDB(self):
         self.db.close()
 
@@ -164,6 +155,20 @@ class DataManager:
         self.cursor.execute(sql)
         averageSpeedByRace = self.cursor.fetchone()[0]
         return averageSpeedByRace
+
+
+    def getProfileNameById(self,profileId):
+        sql = "SELECT name FROM skirunner.user WHERE id=%s" % profileId
+        self.cursor.execute(sql)
+        data = self.cursor.fetchone()[0]
+        return data
+
+    def getDistanceNameById(self,distanceId):
+        sql = "SELECT distance FROM skirunner.distance WHERE id=%s" % distanceId
+        self.cursor.execute(sql)
+        data = self.cursor.fetchone()[0]
+        return data
+
 
 
 
