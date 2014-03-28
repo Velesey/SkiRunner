@@ -199,12 +199,7 @@ def getDataFromSimulator():
 #    main()
 
 
-t1 = threading.Thread(target=main)
-t2 = threading.Thread(target=getDataFromSimulator)
 
-# start threads
-t2.start()
-t1.start()
 
 
 

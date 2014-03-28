@@ -120,10 +120,24 @@ class DataManager:
         data = self.cursor.fetchall()
         return data
 
+
+    def getDistancesAndIds(self):
+        sql = "SELECT * FROM skirunner.distance"
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        return data
+
     def newProfile(self,name):
-        sql = """INSERT INTO user(name)
+        sql = """INSERT INTO skirunner.user(name)
         VALUES ('%s')
         """%(name)
+        self.cursor.execute(sql)
+        self.db.commit()
+
+    def newDistance(self,distance):
+        sql = """INSERT INTO skirunner.distance(distance)
+        VALUES ('%s')
+        """%(distance)
         self.cursor.execute(sql)
         self.db.commit()
 
