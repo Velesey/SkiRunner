@@ -147,6 +147,7 @@ class FormDistance(QMainWindow):
         t1.start()
 
         self.hide()
+        sys.exit()
 
 
 

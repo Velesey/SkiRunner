@@ -8,7 +8,7 @@ from datetime import datetime
 
 STEP = 4.5 #метров
 POWER_IMPULSE = STEP
-RESET_SPEED_TIME = 5
+RESET_SPEED_TIME = 3
 
 class DataManager:
     def __init__(self):
@@ -74,8 +74,12 @@ class DataManager:
          sql = """SELECT distance FROM skirunner.distance  WHERE id =
                     (SELECT   id_distance FROM skirunner.race WHERE id = %s)""" % raceId
          self.cursor.execute(sql)
-         result = self.cursor.fetchone()[0]
-         return  result
+         try:
+            data = self.cursor.fetchone()[0]
+         except:
+            data = 0
+         return data
+
 
     def getLastRaceId(self, profileId):
         sql = """SELECT max(id) FROM skirunner.race
@@ -168,6 +172,33 @@ class DataManager:
         self.cursor.execute(sql)
         data = self.cursor.fetchone()[0]
         return data
+
+
+    def getDatesAndRaceTimesAndRaceIdsByProfileId(self,profileId):
+        sql = """SELECT
+            (SELECT max(date) FROM runLog WHERE race_id = race.id),
+            (SELECT TIME_TO_SEC(TIMEDIFF(max(date), min(date))) AS race_time FROM runLog WHERE race_id = race.id),
+             race.id
+             FROM race
+             WHERE race.id_user = %s""" % profileId
+        self.cursor.execute(sql)
+        data = self.cursor.fetchall()
+        return data
+
+    def getRaceIdByDateAndProfileId(self, date, profileId):
+        dateformat = '%Y-%m-%d'
+        sql = """SELECT id FROM skirunner.race
+            WHERE id_user = %s
+            AND id IN (SELECT DISTINCT race_id FROM runLog
+            WHERE DATE(date) = STR_TO_DATE('%s', '%s'))""" % (profileId,date,dateformat)
+        self.cursor.execute(sql)
+        try:
+            data = self.cursor.fetchone()[0]
+        except:
+            data = 0
+        return data
+
+
 
 
 

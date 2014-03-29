@@ -9,7 +9,6 @@ from dataManager import *
 from object import  *
 import time
 from random import randint
-import threading
 import serial
 
 
@@ -143,7 +142,7 @@ def main(profileId, distanceId):
         raceTime = time.time() - currentTime
         heroSpeed = dm.speed
         font=pygame.font.Font(None,70)
-        textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s "  % ((heroSpeed * 1000 / 3600), heroSpeed)), 1,(0,0,0))
+        textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s "  % ((heroSpeed / 1000 * 3600), heroSpeed)), 1,(0,0,0))
         textDistance=font.render(("Distance: %s m from %s m" % ((hero.rect.x / 10),dm.getDistanceNameById(dm.currentDistanceId))), 1,(0,0,0))
         textTime=font.render(("Time: %.2f " % (raceTime)), 1,(0,0,0))
         textProfile=font.render(("Profile: %s" % (dm.getProfileNameById(dm.currentProfileId))), 1,(0,0,0))
