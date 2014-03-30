@@ -12,6 +12,10 @@ SNOWFLAKE_WIDTH = 32
 SNOWFLAKE_HEIGHT = 32
 SNOWFLAKE_COLOR = "#000000"
 
+FLAG_WIDTH = 300
+FLAG_HEIGHT = 16
+FLAG_COLOR = "#000000"
+
 ICON_DIR = os.path.dirname(__file__) #  Полный путь к каталогу с файлами
 
 
@@ -31,4 +35,22 @@ class Snowflake(sprite.Sprite):
         self.image.fill(Color(SNOWFLAKE_COLOR))
         self.image = image.load("%s/images/snowflake.png" % ICON_DIR)
         self.image.set_colorkey(Color(SNOWFLAKE_COLOR))
+        self.rect = Rect(x, y, SNOWFLAKE_WIDTH, SNOWFLAKE_HEIGHT)
+
+class FlagRed(sprite.Sprite):
+    def __init__(self, x, y):
+        sprite.Sprite.__init__(self)
+        self.image = Surface((FLAG_WIDTH, FLAG_HEIGHT))
+        self.image.fill(Color(FLAG_COLOR))
+        self.image = image.load("%s/images/flagRed.png" % ICON_DIR)
+        self.image.set_colorkey(Color(FLAG_COLOR))
+        self.rect = Rect(x, y, SNOWFLAKE_WIDTH, SNOWFLAKE_HEIGHT)
+
+class FlagBlue(sprite.Sprite):
+    def __init__(self, x, y):
+        sprite.Sprite.__init__(self)
+        self.image = Surface((FLAG_WIDTH, FLAG_HEIGHT))
+        self.image.fill(Color(FLAG_COLOR))
+        self.image = image.load("%s/images/flagBlue.png" % ICON_DIR)
+        self.image.set_colorkey(Color(FLAG_COLOR))
         self.rect = Rect(x, y, SNOWFLAKE_WIDTH, SNOWFLAKE_HEIGHT)

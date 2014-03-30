@@ -6,17 +6,14 @@ import pyganim
 import os
 
 MOVE_SPEED = 10
-WIDTH = 22
+WIDTH = 32
 HEIGHT = 32
 COLOR =  "#888888"
-ANIMATION_DELAY = 0.1 # скорость смены кадров
+ANIMATION_DELAY = 0.5 # скорость смены кадров
 ICON_DIR = os.path.dirname(__file__) #  Полный путь к каталогу с файлами
 
-ANIMATION_RIGHT = [('%s/mario/r1.png' % ICON_DIR),
-            ('%s/mario/r2.png' % ICON_DIR),
-            ('%s/mario/r3.png' % ICON_DIR),
-            ('%s/mario/r4.png' % ICON_DIR),
-            ('%s/mario/r5.png' % ICON_DIR)]
+ANIMATION_RIGHT = [('%s/images/hero_1.png' % ICON_DIR),
+                   ('%s/images/hero_2.png' % ICON_DIR)]
 
 class Player(sprite.Sprite):
     def __init__(self, x, y):

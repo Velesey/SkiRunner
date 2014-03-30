@@ -43,7 +43,7 @@ class DataManager:
             self.currentTime = self.time.time()
             self.lastValue = self.value
 
-        return  self.impulse * 10
+        return  self.impulse
 
 
     def getLastRaceDistanceAtCurrentTime(self, raceId,currentTime):

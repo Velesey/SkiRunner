@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Импортируем библиотеку pygame
 import pygame
 from pygame import *
 from player import *
@@ -14,9 +13,9 @@ import serial
 
 
 
-WIN_WIDTH = 800 #Ширина создаваемого окна
-WIN_HEIGHT = 640 # Высота
-DISPLAY = (WIN_WIDTH, WIN_HEIGHT) # Группируем ширину и высоту в одну переменную
+WIN_WIDTH = 800
+WIN_HEIGHT = 640
+DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 BACKGROUND_COLOR = "#F9FFF8"
 CENTER_OF_SCREEN = WIN_WIDTH / 2, WIN_HEIGHT / 2
 total_level_width = 100 * 60 + 64
@@ -58,28 +57,35 @@ def camera_configure(camera, target_rect):
 def main(profileId, distanceId):
     global valueFromSimulator, isRunnig
     lastValueFromSimulator = 0
-    pygame.init() # Инициация PyGame, обязательная строчка
-    screen = pygame.display.set_mode(DISPLAY) # Создаем окошко
-    pygame.display.set_caption("SKiRun") # Пишем в шапку
-    bg = Surface((WIN_WIDTH, WIN_HEIGHT)) # Создание видимой поверхности
-    entities = pygame.sprite.Group() # Все объекты
-    heroes = pygame.sprite.Group() # Все объекты
+    pygame.init()
+    screen = pygame.display.set_mode(DISPLAY)
+    pygame.display.set_caption("SKiRun")
+    bg = Surface((WIN_WIDTH, WIN_HEIGHT))
+    entities = pygame.sprite.Group()
+    heroes = pygame.sprite.Group()
+    flags = pygame.sprite.Group()
 
     dm = DataManager()
     dm.currentDistanceId = distanceId
     dm.currentProfileId = profileId
 
     raceId = dm.newRace(dm.currentProfileId,dm.currentDistanceId)
-    total_level_width =dm.getRaceDistance(raceId) * 10 + 64 # на 10, чтобы было более заметна ходьба +64 - финишная черта
+    total_level_width =dm.getRaceDistance(raceId)  + 64 #+64 - финишная черта
 
 
     timer = pygame.time.Clock()
 
-    bg.fill(Color(BACKGROUND_COLOR))     # Заливаем поверхность сплошным цветом
+    bg.fill(Color(BACKGROUND_COLOR))
 
     for i in range(1,100):
         snowflake = Snowflake(randint(1,total_level_width),randint(1,total_level_height))
         entities.add(snowflake)
+
+    for i in range(0,total_level_width / 200):
+        flagRed = FlagRed(i * 200,316)
+        flagBlue = FlagBlue(i * 200,366)
+        flags.add(flagRed)
+        flags.add(flagBlue)
 
     speed = 0
     hero = Player(0, 300)
@@ -100,7 +106,7 @@ def main(profileId, distanceId):
 
 
     isSetCurrentTime  = False
-    while not hero.winner: # Основной цикл программы
+    while not hero.winner:
         timer.tick_busy_loop(60)
 
 
@@ -117,7 +123,7 @@ def main(profileId, distanceId):
             print(e)
 
 
-        for e in pygame.event.get(): # Обрабатываем события
+        for e in pygame.event.get():
             if e.type == QUIT:
                 dm.closeDB()
                 isRunnig = False
@@ -130,11 +136,14 @@ def main(profileId, distanceId):
             if e.rect.y >= WIN_HEIGHT:
                 e.rect.y = 0
 
+        for e in flags:
+            screen.blit(e.image, camera.apply(e))
+
         for e in heroes:
             screen.blit(e.image, camera.apply(e))
 
         #center_offset = camera.reverse(CENTER_OF_SCREEN) # получаем координаты внутри длинного уровня
-        hero.update(speed, finish) # передвижение
+        hero.update(speed, finish)
         lastHero.update(distanceLastRace)
 
         camera.update(hero) # центризируем камеру относительно персонаж
@@ -142,17 +151,17 @@ def main(profileId, distanceId):
         raceTime = time.time() - currentTime
         heroSpeed = dm.speed
         font=pygame.font.Font(None,70)
-        textSpeed=font.render(("Speed : %.2f  km\h || %.2f m\s "  % ((heroSpeed / 1000 * 3600), heroSpeed)), 1,(0,0,0))
-        textDistance=font.render(("Distance: %s m from %s m" % ((hero.rect.x / 10),dm.getDistanceNameById(dm.currentDistanceId))), 1,(0,0,0))
-        textTime=font.render(("Time: %.2f " % (raceTime)), 1,(0,0,0))
-        textProfile=font.render(("Profile: %s" % (dm.getProfileNameById(dm.currentProfileId))), 1,(0,0,0))
+        textSpeed=font.render((u"Скорость : %.2f км\ч || %.2f м\с "  % ((heroSpeed / 1000 * 3600), heroSpeed)), 1,(0,0,0))
+        textDistance=font.render((u"Дистанция: %s м из %s м" % ((hero.rect.x),dm.getDistanceNameById(dm.currentDistanceId))), 1,(0,0,0))
+        textTime=font.render((u"Время: %.2f с" % (raceTime)), 1,(0,0,0))
+        textProfile=font.render(("%s" % (dm.getProfileNameById(dm.currentProfileId))), 1,(0,0,0))
 
         screen.blit(textSpeed, (10,10))
         screen.blit(textDistance, (10,50))
         screen.blit(textTime, (10,90))
-        screen.blit(textProfile, (10,130))
-        pygame.display.update()     # обновление и вывод всех изменений на экран
-        screen.blit(bg, (0, 0))      # Каждую итерацию необходимо всё перерисовывать
+        screen.blit(textProfile, (10,580))
+        pygame.display.update()
+        screen.blit(bg, (0, 0))
 
     dm.logSpeed(hero.rect.x,dm.getCurrentRaceId())
     while isRunnig:
@@ -163,26 +172,23 @@ def main(profileId, distanceId):
 
         font=pygame.font.Font(None,70)
         averageSpeed = dm.getAverageSpeedByRace(dm.getCurrentRaceId())
-        textSpeed=font.render(("Average speed: %.2f  km\h || %.2f m\s "  % ((averageSpeed * 1000 / 3600), averageSpeed)), 1,(0,0,0))
-        textDistance=font.render(("Distance: %s  m" % (hero.rect.x / 10)), 1,(0,0,0))
-        textTime=font.render(("Time: %.2f " % (raceTime)), 1,(0,0,0))
+        textSpeed=font.render((u"Ср. скорость: %.2f км\ч || %.2f м\с "  % ((averageSpeed / 1000 * 3600), averageSpeed)), 1,(0,0,0))
+        textDistance=font.render((u"Пройдено: %s м" % (hero.rect.x)), 1,(0,0,0))
+        textTime=font.render((u"Затрачено времени: %.2f с" % (raceTime)), 1,(0,0,0))
         text=font.render(finalText, 1,(0,0,200))
 
 
         screen.blit(textSpeed, (10,10))
         screen.blit(textDistance, (10,50))
         screen.blit(textTime, (10,90))
-        pygame.display.update()     # обновление и вывод всех изменений на экран
-        screen.blit(bg, (0, 0))      # Каждую итерацию необходимо всё перерисовывать
+        pygame.display.update()
+        screen.blit(bg, (0, 0))
         screen.blit(text, (10,150))
 
-        for e in pygame.event.get(): # Обрабатываем события
+        for e in pygame.event.get():
             if e.type == QUIT or e.type == KEYDOWN :
                 isRunnig = False
                 dm.closeDB()
-
-
-
 
 
 
@@ -195,17 +201,5 @@ def getDataFromSimulator():
            valueFromSimulator = int(value)
        except:
            pass
-
-
-
-
-        
-#if __name__ == "__main__":
-#    main()
-
-
-
-
-
 
 
