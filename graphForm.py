@@ -17,8 +17,6 @@ DIR = os.path.dirname(__file__)
 
 DATEFORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
-
-
 class FormGraph(QMainWindow):
     def __init__(self,profileId):
         super(QMainWindow, self).__init__()
@@ -27,7 +25,6 @@ class FormGraph(QMainWindow):
         self.distanceId = -1
         self.cb_distance_load()
         self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
-
 
         self.connect(self.bt_averageSpeed, SIGNAL("clicked()"), self.bt_averageSpeed_clicked)
         self.connect(self.bt_averageTime, SIGNAL("clicked()"), self.bt_averageTime_clicked)
@@ -48,8 +45,6 @@ class FormGraph(QMainWindow):
         for rec in data:
             id, dist = rec
             self.cb_distance.addItem(str(dist),id)
-
-
 
     def bt_distance_clicked(self):
         self.distanceId = int(self.cb_distance.itemData(self.cb_distance.currentIndex()).toString())
@@ -135,7 +130,6 @@ class FormGraph(QMainWindow):
         plt.gcf().autofmt_xdate()
         plt.grid(True)
         plt.show()
-
 
     def bt_back_clicked(self):
         self.formProfile = FormProfile()

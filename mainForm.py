@@ -97,7 +97,6 @@ class FormDistance(QMainWindow):
         self.profileId = profileId
         self.distanceId = -1
 
-
         self.cb_distance_load()
         self.te_newDistance.hide()
         self.bt_addDistance.hide()
@@ -105,15 +104,11 @@ class FormDistance(QMainWindow):
         self.lb_add.hide()
         self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
 
-
         self.connect(self.bt_new, SIGNAL("clicked()"), self.bt_new_clicked)
         self.connect(self.bt_cancel, SIGNAL("clicked()"), self.bt_cancel_clicked)
         self.connect(self.bt_addDistance,SIGNAL("clicked()"), self.bt_addDistance_clicked)
         self.connect(self.bt_ok, SIGNAL("clicked()"), self.bt_ok_clicked)
         self.connect(self.bt_back, SIGNAL("clicked()"), self.bt_back_clicked)
-
-
-
 
     def cb_distance_load(self):
         self.cb_distance.clear()
@@ -162,7 +157,6 @@ class FormDistance(QMainWindow):
         from SkiRun import *
         t1 = threading.Thread(target=main,args = (self.profileId,self.distanceId))
         t2 = threading.Thread(target=getDataFromSimulator)
-
         t2.start()
         t1.start()
 
@@ -173,8 +167,6 @@ class FormDistance(QMainWindow):
         self.formProfile = FormProfile()
         self.formProfile.show()
         self.hide()
-
-
 
 class App(QApplication):
     def __init__(self, *args):

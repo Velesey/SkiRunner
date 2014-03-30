@@ -51,12 +51,12 @@ class DataManager:
         dateFormat = "%Y-%m-%d %H:%M:%S.%f"
         if  not self.isGetLastRaceSpeeds:
 
-            sql = """SELECT min(date) FROM skirunner.runLog WHERE race_id = %s""" % raceId
+            sql = """SELECT min(date) FROM runLog WHERE race_id = %s""" % raceId
             self.cursor.execute(sql)
             data = self.cursor.fetchall()
             for rec in data:
                 self.lastRaceMinDate = datetime.strptime(rec[0],dateFormat)
-            sql = """SELECT distance,date FROM skirunner.runLog WHERE race_id = %s ORDER BY date DESC""" % raceId
+            sql = """SELECT distance,date FROM runLog WHERE race_id = %s ORDER BY date DESC""" % raceId
             self.cursor.execute(sql)
             self.dataLastRace = self.cursor.fetchall()
             self.isGetLastRaceSpeeds = True
@@ -71,8 +71,8 @@ class DataManager:
         return  lastRaceDistance
 
     def getRaceDistance(self, raceId):
-         sql = """SELECT distance FROM skirunner.distance  WHERE id =
-                    (SELECT   id_distance FROM skirunner.race WHERE id = %s)""" % raceId
+         sql = """SELECT distance FROM distance  WHERE id =
+                    (SELECT   id_distance FROM race WHERE id = %s)""" % raceId
          self.cursor.execute(sql)
          try:
             data = self.cursor.fetchone()[0]
@@ -82,19 +82,19 @@ class DataManager:
 
 
     def getLastRaceId(self, profileId):
-        sql = """SELECT max(id) FROM skirunner.race
+        sql = """SELECT max(id) FROM race
             WHERE id_user = %s
-            AND id != (SELECT max(id) FROM skirunner.race
+            AND id != (SELECT max(id) FROM race
             WHERE id_user = %s)""" % (profileId, profileId)
         self.cursor.execute(sql)
-        result = self.cursor.fetchone()[0]
-        return result
+        data = self.cursor.fetchone()[0]
+        return data
 
 
     def getCurrentRaceId(self):
         if self.currentRaceId != -1:
             return  self.currentRaceId
-        sql = "SELECT max(id) FROM skirunner.race"
+        sql = "SELECT max(id) FROM race"
         self.currentRaceId = self.cursor.execute(sql)[0]
         return self.currentRaceId
 
@@ -105,33 +105,33 @@ class DataManager:
         """%(profileId,distanceId)
         self.cursor.execute(sql)
         self.db.commit()
-        sql = "SELECT max(id) FROM skirunner.race"
+        sql = "SELECT max(id) FROM race"
         self.cursor.execute(sql)
         self.currentRaceId = self.cursor.fetchone()[0]
         return self.currentRaceId
 
     def getProfilesAndIds(self):
-        sql = "SELECT * FROM skirunner.user"
+        sql = "SELECT * FROM user"
         self.cursor.execute(sql)
         data = self.cursor.fetchall()
         return data
 
 
     def getDistancesAndIds(self):
-        sql = "SELECT * FROM skirunner.distance"
+        sql = "SELECT * FROM distance"
         self.cursor.execute(sql)
         data = self.cursor.fetchall()
         return data
 
     def newProfile(self,name):
-        sql = """INSERT INTO skirunner.user(name)
+        sql = """INSERT INTO user(name)
         VALUES ('%s')
         """%(name)
         self.cursor.execute(sql)
         self.db.commit()
 
     def newDistance(self,distance):
-        sql = """INSERT INTO skirunner.distance(distance)
+        sql = """INSERT INTO distance(distance)
         VALUES ('%s')
         """%(distance)
         self.cursor.execute(sql)
@@ -152,8 +152,8 @@ class DataManager:
         self.db.commit()
 
     def getAverageSpeedByRace(self, raceId):
-        sql = """SELECT (SELECT distance FROM skirunner.distance
-                WHERE id = (SELECT id_distance FROM skirunner.race WHERE id = %s))
+        sql = """SELECT (SELECT distance FROM distance
+                WHERE id = (SELECT id_distance FROM race WHERE id = %s))
                  / TIME_TO_SEC(TIMEDIFF(max(date), min(date))) AS race_time FROM runLog
                 where race_id = %s""" % (raceId,raceId)
         self.cursor.execute(sql)
@@ -162,13 +162,13 @@ class DataManager:
 
 
     def getProfileNameById(self,profileId):
-        sql = "SELECT name FROM skirunner.user WHERE id=%s" % profileId
+        sql = "SELECT name FROM user WHERE id=%s" % profileId
         self.cursor.execute(sql)
         data = self.cursor.fetchone()[0]
         return data
 
     def getDistanceNameById(self,distanceId):
-        sql = "SELECT distance FROM skirunner.distance WHERE id=%s" % distanceId
+        sql = "SELECT distance FROM distance WHERE id=%s" % distanceId
         self.cursor.execute(sql)
         data = self.cursor.fetchone()[0]
         return data
@@ -187,7 +187,7 @@ class DataManager:
 
     def getRaceIdByDateAndProfileId(self, date, profileId):
         dateformat = '%Y-%m-%d'
-        sql = """SELECT id FROM skirunner.race
+        sql = """SELECT id FROM race
             WHERE id_user = %s
             AND id IN (SELECT DISTINCT race_id FROM runLog
             WHERE DATE(date) = STR_TO_DATE('%s', '%s'))""" % (profileId,date,dateformat)

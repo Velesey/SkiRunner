@@ -40,7 +40,6 @@ class Camera(object):
     def reverse(self, pos):# получение внутренних координат из глобальных
         return pos[0] - self.state.left, pos[1] - self.state.top
 
-
 def camera_configure(camera, target_rect):
     l, t, _, _ = target_rect
     _, _, w, h = camera
@@ -142,7 +141,6 @@ def main(profileId, distanceId):
         for e in heroes:
             screen.blit(e.image, camera.apply(e))
 
-        #center_offset = camera.reverse(CENTER_OF_SCREEN) # получаем координаты внутри длинного уровня
         hero.update(speed, finish)
         lastHero.update(distanceLastRace)
 
@@ -195,8 +193,6 @@ def main(profileId, distanceId):
             if e.type == QUIT or e.type == KEYDOWN :
                 isRunnig = False
                 dm.closeDB()
-
-
 
 def getDataFromSimulator():
     global valueFromSimulator, isRunnig
