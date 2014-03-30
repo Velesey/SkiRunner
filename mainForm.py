@@ -20,6 +20,9 @@ class FormProfile(QMainWindow):
         self.bt_addProfile.hide()
         self.bt_cancel.hide()
         self.lb_add.hide()
+        self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
+
+
 
         self.connect(self.bt_ok, SIGNAL("clicked()"), self.bt_ok_clicked)
         self.connect(self.bt_new, SIGNAL("clicked()"), self.bt_new_clicked)
@@ -100,6 +103,8 @@ class FormDistance(QMainWindow):
         self.bt_addDistance.hide()
         self.bt_cancel.hide()
         self.lb_add.hide()
+        self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
+
 
         self.connect(self.bt_new, SIGNAL("clicked()"), self.bt_new_clicked)
         self.connect(self.bt_cancel, SIGNAL("clicked()"), self.bt_cancel_clicked)

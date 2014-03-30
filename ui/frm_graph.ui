@@ -17,7 +17,7 @@
    <widget class="QPushButton" name="bt_averageSpeed">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>10</x>
       <y>60</y>
       <width>181</width>
       <height>31</height>
@@ -30,7 +30,7 @@
    <widget class="QComboBox" name="cb_distance">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>10</x>
       <y>20</y>
       <width>181</width>
       <height>31</height>
@@ -40,7 +40,7 @@
    <widget class="QPushButton" name="bt_averageTime">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>10</x>
       <y>100</y>
       <width>181</width>
       <height>31</height>
@@ -53,8 +53,8 @@
    <widget class="QPushButton" name="bt_distance">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>140</y>
+      <x>200</x>
+      <y>60</y>
       <width>181</width>
       <height>31</height>
      </rect>
@@ -66,7 +66,7 @@
    <widget class="QPushButton" name="bt_back">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>10</x>
       <y>190</y>
       <width>94</width>
       <height>27</height>

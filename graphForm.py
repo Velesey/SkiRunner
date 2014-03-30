@@ -26,6 +26,8 @@ class FormGraph(QMainWindow):
         self.profileId = profileId
         self.distanceId = -1
         self.cb_distance_load()
+        self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
+
 
         self.connect(self.bt_averageSpeed, SIGNAL("clicked()"), self.bt_averageSpeed_clicked)
         self.connect(self.bt_averageTime, SIGNAL("clicked()"), self.bt_averageTime_clicked)
@@ -96,7 +98,10 @@ class FormGraph(QMainWindow):
         plt.plot_date(dates, times,'b')
         plt.plot_date(dates, times,'bo')
         timesSum = sum(times)
-        plt.xlabel(u"Всего времени = %s с" % float(timesSum))
+        h = ((timesSum / 3600)) % 24
+        m = (timesSum / 60) % 60
+        s = timesSum % 60
+        plt.xlabel(u"Всего времени = %s с или %d:%02d:%02d" % (timesSum,h,m,s))
         plt.ylabel(u"Время гонки (м/с)")
         plt.title(u"График времени гонки профиля %s" % dm.getProfileNameById(self.profileId))
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%y'))
@@ -123,7 +128,7 @@ class FormGraph(QMainWindow):
         plt.plot_date(dates, values,'b')
         plt.plot_date(dates, values,'bo')
         averageSpeed = len(values) > 0 and (lambda: sum(values) / len(values)) or (lambda: 0)
-        plt.xlabel(u"Средняя-средняя скорость= %.2f м/с" % float(averageSpeed()))
+        plt.xlabel(u"Средняя-средняя скорость= %.2f м/с или %.2f км/ч" % (float(averageSpeed()),float(averageSpeed()) / 1000 * 3600))
         plt.ylabel(u"Средняя скорость (м/с)")
         plt.title(u"График скоростей профиля %s" % dm.getProfileNameById(self.profileId))
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%y'))

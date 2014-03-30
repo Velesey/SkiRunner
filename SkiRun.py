@@ -153,7 +153,10 @@ def main(profileId, distanceId):
         font=pygame.font.Font(None,70)
         textSpeed=font.render((u"Скорость : %.2f км\ч || %.2f м\с "  % ((heroSpeed / 1000 * 3600), heroSpeed)), 1,(0,0,0))
         textDistance=font.render((u"Дистанция: %s м из %s м" % ((hero.rect.x),dm.getDistanceNameById(dm.currentDistanceId))), 1,(0,0,0))
-        textTime=font.render((u"Время: %.2f с" % (raceTime)), 1,(0,0,0))
+        h = ((raceTime / 3600)) % 24
+        m = (raceTime / 60) % 60
+        s = raceTime % 60
+        textTime=font.render((u"Время: %d:%02d:%02d" % (h, m, s)), 1,(0,0,0))
         textProfile=font.render(("%s" % (dm.getProfileNameById(dm.currentProfileId))), 1,(0,0,0))
 
         screen.blit(textSpeed, (10,10))
@@ -174,7 +177,10 @@ def main(profileId, distanceId):
         averageSpeed = dm.getAverageSpeedByRace(dm.getCurrentRaceId())
         textSpeed=font.render((u"Ср. скорость: %.2f км\ч || %.2f м\с "  % ((averageSpeed / 1000 * 3600), averageSpeed)), 1,(0,0,0))
         textDistance=font.render((u"Пройдено: %s м" % (hero.rect.x)), 1,(0,0,0))
-        textTime=font.render((u"Затрачено времени: %.2f с" % (raceTime)), 1,(0,0,0))
+        h = ((raceTime / 3600)) % 24
+        m = (raceTime / 60) % 60
+        s = raceTime % 60
+        textTime=font.render((u"Затрачено времени: %d:%02d:%02d" % (h, m, s)), 1,(0,0,0))
         text=font.render(finalText, 1,(0,0,200))
 
 
