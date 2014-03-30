@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>394</width>
-    <height>206</height>
+    <height>245</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,6 +61,19 @@
     </property>
     <property name="text">
      <string>Пройденное расстояние</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bt_back">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>190</y>
+      <width>94</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Назад</string>
     </property>
    </widget>
   </widget>

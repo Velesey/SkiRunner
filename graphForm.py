@@ -9,7 +9,8 @@ import matplotlib.dates as mdates
 from datetime import timedelta
 from dataManager import *
 from matplotlib import rc
-from matplotlib.dates import  drange
+from mainForm import *
+
 
 
 DIR = os.path.dirname(__file__)
@@ -19,16 +20,17 @@ DATEFORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
 
 class FormGraph(QMainWindow):
-    def __init__(self,profileId,distanceId):
+    def __init__(self,profileId):
         super(QMainWindow, self).__init__()
         uic.loadUi('%s/ui/frm_graph.ui' % DIR, self)
         self.profileId = profileId
-        self.distanceId = distanceId
+        self.distanceId = -1
         self.cb_distance_load()
 
         self.connect(self.bt_averageSpeed, SIGNAL("clicked()"), self.bt_averageSpeed_clicked)
         self.connect(self.bt_averageTime, SIGNAL("clicked()"), self.bt_averageTime_clicked)
         self.connect(self.bt_distance, SIGNAL("clicked()"), self.bt_distance_clicked)
+        self.connect(self.bt_back, SIGNAL("clicked()"), self.bt_back_clicked)
 
         #включаем кирилицу
         font = {'family': 'Droid Sans',
@@ -54,7 +56,13 @@ class FormGraph(QMainWindow):
         dates = []
         distances = []
         for date in (minDate + timedelta(n) for n in range(33)):
-            distance = dm.getRaceDistance(dm.getRaceIdByDateAndProfileId(date,self.profileId))
+            distance = 0
+            data = dm.getRaceIdByDateAndProfileId(date,self.profileId)
+            if data:
+                print(data)
+                for raceIds in data:
+                    raceId = raceIds
+                    distance += dm.getRaceDistance(raceId)
             distances.append(distance)
             dates.append(date)
 
@@ -124,17 +132,8 @@ class FormGraph(QMainWindow):
         plt.show()
 
 
+    def bt_back_clicked(self):
+        self.formProfile = FormProfile()
+        self.formProfile.show()
+        self.hide()
 
-class App(QApplication):
-    def __init__(self, *args):
-        QApplication.__init__(self, *args)
-        self.formGraph = FormGraph(1,1)
-        self.formGraph.show()
-
-def main(args):
-    global app
-    app = App(args)
-    app.exec_()
-
-if __name__ == "__main__":
-    main(sys.argv)

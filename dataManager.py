@@ -192,10 +192,7 @@ class DataManager:
             AND id IN (SELECT DISTINCT race_id FROM runLog
             WHERE DATE(date) = STR_TO_DATE('%s', '%s'))""" % (profileId,date,dateformat)
         self.cursor.execute(sql)
-        try:
-            data = self.cursor.fetchone()[0]
-        except:
-            data = 0
+        data = self.cursor.fetchall()
         return data
 
 

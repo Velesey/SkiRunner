@@ -4,6 +4,8 @@ from PyQt4 import uic
 import  os
 import  sys
 from dataManager import *
+import  threading
+from graphForm import *
 
 DIR = os.path.dirname(__file__) #  Полный путь к каталогу с файлами
 
@@ -23,14 +25,15 @@ class FormProfile(QMainWindow):
         self.connect(self.bt_new, SIGNAL("clicked()"), self.bt_new_clicked)
         self.connect(self.bt_addProfile,SIGNAL("clicked()"), self.bt_addProfile_clicked)
         self.connect(self.bt_cancel, SIGNAL("clicked()"), self.bt_cancel_clicked)
+        self.connect(self.bt_graph, SIGNAL("clicked()"), self.bt_graph_clicked)
 
         self.profileId = -1
 
 
     def bt_ok_clicked(self):
         self.profileId = self.cb_profile.itemData(self.cb_profile.currentIndex()).toString()
-        self.formSpeed = FormDistance(self.profileId)
-        self.formSpeed.show()
+        self.formDistance = FormDistance(self.profileId)
+        self.formDistance.show()
 
         self.hide()
 
@@ -43,6 +46,7 @@ class FormProfile(QMainWindow):
         self.cb_profile.hide()
         self.bt_ok.hide()
         self.bt_new.hide()
+        self.bt_graph.hide()
 
     def bt_addProfile_clicked(self):
         self.bt_cancel_clicked()
@@ -63,6 +67,8 @@ class FormProfile(QMainWindow):
         self.bt_ok.show()
         self.bt_new.show()
         self.bt_cancel.hide()
+        self.bt_graph.show()
+
 
 
     def cb_profile_load(self):
@@ -72,6 +78,13 @@ class FormProfile(QMainWindow):
         for rec in data:
             id, name = rec
             self.cb_profile.addItem(name,id)
+
+
+    def bt_graph_clicked(self):
+        self.profileId = self.cb_profile.itemData(self.cb_profile.currentIndex()).toString()
+        self.formGraph = FormGraph(self.profileId)
+        self.formGraph.show()
+        self.hide()
 
 
 class FormDistance(QMainWindow):
@@ -92,6 +105,8 @@ class FormDistance(QMainWindow):
         self.connect(self.bt_cancel, SIGNAL("clicked()"), self.bt_cancel_clicked)
         self.connect(self.bt_addDistance,SIGNAL("clicked()"), self.bt_addDistance_clicked)
         self.connect(self.bt_ok, SIGNAL("clicked()"), self.bt_ok_clicked)
+        self.connect(self.bt_back, SIGNAL("clicked()"), self.bt_back_clicked)
+
 
 
 
@@ -148,6 +163,11 @@ class FormDistance(QMainWindow):
 
         self.hide()
         sys.exit()
+
+    def bt_back_clicked(self):
+        self.formProfile = FormProfile()
+        self.formProfile.show()
+        self.hide()
 
 
 

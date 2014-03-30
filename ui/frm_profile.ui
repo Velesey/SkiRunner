@@ -121,6 +121,19 @@
      <string>Отмена</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="bt_graph">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>130</y>
+      <width>94</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Графики</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
