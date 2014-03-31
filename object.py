@@ -18,7 +18,6 @@ FLAG_COLOR = "#000000"
 
 ICON_DIR = os.path.dirname(__file__) #  Полный путь к каталогу с файлами
 
-
 class FinishLine(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)

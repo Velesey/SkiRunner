@@ -9,9 +9,7 @@ import matplotlib.dates as mdates
 from datetime import timedelta
 from dataManager import *
 from matplotlib import rc
-from mainForm import *
-
-
+import mainForm
 
 DIR = os.path.dirname(__file__)
 
@@ -132,7 +130,7 @@ class FormGraph(QMainWindow):
         plt.show()
 
     def bt_back_clicked(self):
-        self.formProfile = FormProfile()
+        self.formProfile = mainForm.FormProfile()
         self.formProfile.show()
         self.hide()
 

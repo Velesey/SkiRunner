@@ -5,7 +5,7 @@ import  os
 import  sys
 from dataManager import *
 import  threading
-from graphForm import *
+import graphForm
 
 DIR = os.path.dirname(__file__) #  Полный путь к каталогу с файлами
 
@@ -22,8 +22,6 @@ class FormProfile(QMainWindow):
         self.lb_add.hide()
         self.move(QDesktopWidget().availableGeometry().center() - self.frameGeometry().center())
 
-
-
         self.connect(self.bt_ok, SIGNAL("clicked()"), self.bt_ok_clicked)
         self.connect(self.bt_new, SIGNAL("clicked()"), self.bt_new_clicked)
         self.connect(self.bt_addProfile,SIGNAL("clicked()"), self.bt_addProfile_clicked)
@@ -32,12 +30,10 @@ class FormProfile(QMainWindow):
 
         self.profileId = -1
 
-
     def bt_ok_clicked(self):
         self.profileId = self.cb_profile.itemData(self.cb_profile.currentIndex()).toString()
         self.formDistance = FormDistance(self.profileId)
         self.formDistance.show()
-
         self.hide()
 
     def bt_new_clicked(self):
@@ -72,8 +68,6 @@ class FormProfile(QMainWindow):
         self.bt_cancel.hide()
         self.bt_graph.show()
 
-
-
     def cb_profile_load(self):
         self.cb_profile.clear()
         dm = DataManager()
@@ -82,13 +76,11 @@ class FormProfile(QMainWindow):
             id, name = rec
             self.cb_profile.addItem(name,id)
 
-
     def bt_graph_clicked(self):
         self.profileId = self.cb_profile.itemData(self.cb_profile.currentIndex()).toString()
-        self.formGraph = FormGraph(self.profileId)
+        self.formGraph = graphForm.FormGraph(self.profileId)
         self.formGraph.show()
         self.hide()
-
 
 class FormDistance(QMainWindow):
     def __init__(self,profileId):

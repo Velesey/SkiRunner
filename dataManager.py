@@ -5,7 +5,6 @@ import time
 import MySQLdb
 from datetime import datetime
 
-
 STEP = 4.5 #метров
 POWER_IMPULSE = STEP
 RESET_SPEED_TIME = 3
@@ -45,7 +44,6 @@ class DataManager:
 
         return  self.impulse
 
-
     def getLastRaceDistanceAtCurrentTime(self, raceId,currentTime):
         lastRaceDistance = 0
         dateFormat = "%Y-%m-%d %H:%M:%S.%f"
@@ -60,7 +58,6 @@ class DataManager:
             self.cursor.execute(sql)
             self.dataLastRace = self.cursor.fetchall()
             self.isGetLastRaceSpeeds = True
-
 
         if self.isRaceStart:
             time = datetime.now() - datetime.fromtimestamp(currentTime)
@@ -80,7 +77,6 @@ class DataManager:
             data = 0
          return data
 
-
     def getLastRaceId(self, profileId):
         sql = """SELECT max(id) FROM race
             WHERE id_user = %s
@@ -90,14 +86,12 @@ class DataManager:
         data = self.cursor.fetchone()[0]
         return data
 
-
     def getCurrentRaceId(self):
         if self.currentRaceId != -1:
             return  self.currentRaceId
         sql = "SELECT max(id) FROM race"
         self.currentRaceId = self.cursor.execute(sql)[0]
         return self.currentRaceId
-
 
     def newRace(self,profileId,distanceId):
         sql = """INSERT INTO race(id_user,id_distance)
@@ -115,7 +109,6 @@ class DataManager:
         self.cursor.execute(sql)
         data = self.cursor.fetchall()
         return data
-
 
     def getDistancesAndIds(self):
         sql = "SELECT * FROM distance"
@@ -160,7 +153,6 @@ class DataManager:
         averageSpeedByRace = self.cursor.fetchone()[0]
         return averageSpeedByRace
 
-
     def getProfileNameById(self,profileId):
         sql = "SELECT name FROM user WHERE id=%s" % profileId
         self.cursor.execute(sql)
@@ -172,7 +164,6 @@ class DataManager:
         self.cursor.execute(sql)
         data = self.cursor.fetchone()[0]
         return data
-
 
     def getDatesAndRaceTimesAndRaceIdsByProfileId(self,profileId):
         sql = """SELECT

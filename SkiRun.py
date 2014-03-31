@@ -10,15 +10,11 @@ import time
 from random import randint
 import serial
 
-
-
-
 WIN_WIDTH = 800
 WIN_HEIGHT = 640
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 BACKGROUND_COLOR = "#F9FFF8"
-CENTER_OF_SCREEN = WIN_WIDTH / 2, WIN_HEIGHT / 2
-total_level_width = 100 * 60 + 64
+total_level_width = 0
 total_level_height = WIN_HEIGHT
 
 FILE_DIR = os.path.dirname(__file__)
@@ -52,7 +48,6 @@ def camera_configure(camera, target_rect):
 
     return Rect(l, t, w, h)
 
-
 def main(profileId, distanceId):
     global valueFromSimulator, isRunnig
     lastValueFromSimulator = 0
@@ -69,8 +64,7 @@ def main(profileId, distanceId):
     dm.currentProfileId = profileId
 
     raceId = dm.newRace(dm.currentProfileId,dm.currentDistanceId)
-    total_level_width =dm.getRaceDistance(raceId)  + 64 #+64 - финишная черта
-
+    total_level_width =dm.getRaceDistance(raceId)  + 84 #+64 - финишная черта
 
     timer = pygame.time.Clock()
 
@@ -94,7 +88,6 @@ def main(profileId, distanceId):
     currentTime = time.time()
     raceTime = time.time()
 
-
     timer = pygame.time.Clock()
 
     camera = Camera(camera_configure, total_level_width, total_level_height)
@@ -102,12 +95,9 @@ def main(profileId, distanceId):
     finish = FinishLine(total_level_width-64,0)
     heroes.add(finish)
 
-
-
     isSetCurrentTime  = False
     while not hero.winner:
         timer.tick_busy_loop(60)
-
 
         speed = dm.getImpulse(valueFromSimulator)
         if speed > 0:
@@ -120,7 +110,6 @@ def main(profileId, distanceId):
         except Exception as e:
             distanceLastRace = -1
             print(e)
-
 
         for e in pygame.event.get():
             if e.type == QUIT:
@@ -180,7 +169,6 @@ def main(profileId, distanceId):
         s = raceTime % 60
         textTime=font.render((u"Затрачено времени: %d:%02d:%02d" % (h, m, s)), 1,(0,0,0))
         text=font.render(finalText, 1,(0,0,200))
-
 
         screen.blit(textSpeed, (10,10))
         screen.blit(textDistance, (10,50))
