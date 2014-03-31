@@ -13,7 +13,7 @@ import serial
 WIN_WIDTH = 800
 WIN_HEIGHT = 640
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
-BACKGROUND_COLOR = "#F9FFF8"
+BACKGROUND_COLOR = "#F9F0F8"
 total_level_width = 0
 total_level_height = WIN_HEIGHT
 
@@ -55,7 +55,7 @@ def main(profileId, distanceId):
     screen = pygame.display.set_mode(DISPLAY)
     pygame.display.set_caption("SKiRun")
     bg = Surface((WIN_WIDTH, WIN_HEIGHT))
-    entities = pygame.sprite.Group()
+    snowFlakes = pygame.sprite.Group()
     heroes = pygame.sprite.Group()
     flags = pygame.sprite.Group()
 
@@ -72,7 +72,7 @@ def main(profileId, distanceId):
 
     for i in range(1,100):
         snowflake = Snowflake(randint(1,total_level_width),randint(1,total_level_height))
-        entities.add(snowflake)
+        snowFlakes.add(snowflake)
 
     for i in range(0,total_level_width / 200):
         flagRed = FlagRed(i * 200,316)
@@ -118,7 +118,7 @@ def main(profileId, distanceId):
                 exit(0)
                 raise SystemExit, "QUIT"
 
-        for e in entities:
+        for e in snowFlakes:
             screen.blit(e.image, camera.apply(e))
             e.rect.y+=1
             if e.rect.y >= WIN_HEIGHT:
@@ -160,7 +160,7 @@ def main(profileId, distanceId):
         else:
             finalText = u"Поздравляем победителя! :)"
 
-        font=pygame.font.Font(None,70)
+        font=pygame.font.Font(None,65)
         averageSpeed = dm.getAverageSpeedByRace(dm.getCurrentRaceId())
         textSpeed=font.render((u"Ср. скорость: %.2f км\ч || %.2f м\с "  % ((averageSpeed / 1000 * 3600), averageSpeed)), 1,(0,0,0))
         textDistance=font.render((u"Пройдено: %s м" % (hero.rect.x)), 1,(0,0,0))

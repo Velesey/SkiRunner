@@ -95,7 +95,7 @@ class FormGraph(QMainWindow):
         m = (timesSum / 60) % 60
         s = timesSum % 60
         plt.xlabel(u"Всего времени = %s с или %d:%02d:%02d" % (timesSum,h,m,s))
-        plt.ylabel(u"Время гонки (м/с)")
+        plt.ylabel(u"Время гонки (с)")
         plt.title(u"График времени гонки профиля %s" % dm.getProfileNameById(self.profileId))
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%y'))
         plt.gcf().autofmt_xdate()

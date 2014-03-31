@@ -5,7 +5,7 @@ import time
 import MySQLdb
 from datetime import datetime
 
-STEP = 4.5 #метров
+STEP = 4 #метров
 POWER_IMPULSE = STEP
 RESET_SPEED_TIME = 3
 
